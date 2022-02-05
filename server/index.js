@@ -1,7 +1,7 @@
 //import 'dotenv/config';
 //const { createServer }= require("http");
 import mongoose from 'mongoose';
-//import path from 'path';
+import path from 'path';
 import { createServer } from "http";
 import express from 'express';
 import { execute, subscribe } from "graphql";
@@ -17,18 +17,28 @@ const { SubscriptionServer } = require("subscriptions-transport-ws");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 const { typeDefs, resolvers } = require("./Schema/index.js")
 */
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 const app = express();
 const httpServer = createServer(app);
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 const server = new ApolloServer({ schema });
 
 //app.use(cors());
-
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static("todo-sub-app/build"));
+    app.get("/*", function(req, res) {
+      res.sendFile(path.join(__dirname, "todo-sub-app","build","index.html"));
+    });
+  } else {
+    app.use(express.static(path.join(__dirname, "todo-sub-app","public")));
+    app.get("/*", function(req, res) {
+      res.sendFile(path.join(__dirname, "todo-sub-app","public","index.html"));
+    });
+  }
 (async () => {
     
     await server.start();
-    server.applyMiddleware({ app });
+    server.applyMiddleware({ app, path:"/graphql" });
 
     SubscriptionServer.create(
         { schema, execute, subscribe },

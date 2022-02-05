@@ -23,7 +23,9 @@ function App() {
   const { data: userSubsDasta, error: subscriptionError, loading: subscriptionLoader } = useSubscription(SUBSCRIBE_USER_ADDED)
   const { data: userDelData, error: delError, loading: delLoader } = useSubscription(SUBSCRIBE_USER_DELETED)
   const { data: updateData, error: updateError, loading: updateLoader } = useSubscription(SUBSCRIBE_USER_UPDATED)
-//  const ref = useRef()
+  const { error, loading, data } = useQuery(LOAD_USERS);
+
+  //  const ref = useRef()
   //  console.log(value);
   const handleSubmit = () => {
     console.log(value && value);
@@ -45,15 +47,7 @@ editData({
   variables:{name:editUser,editDataId:id}
 })
 }
-useEffect(() => {
-  updateData && console.log('userSubsDasta: ', updateData)
-  if (updateData) {
-    const updatedUsers = updateData['updateData']
-     console.log(updatedUsers)
-     setUsers(updatedUsers)
-  }
-  // logic (todo)
-}, [updateData])
+
 useEffect(() => {
   userDelData && console.log('userDelData: ', userDelData)
   if (userDelData) {
@@ -77,13 +71,30 @@ useEffect(() => {
   }
   // logic (todo)
 }, [userSubsDasta])
-  const { error, loading, data } = useQuery(LOAD_USERS);
   useEffect(() => {
-    console.log("dataaaa", data);
     if (data) {
-      setUsers(data["allData"]);
+      setUsers([...data["allData"]]);
+      console.log("dataaaa", data);
+
     }
   }, [data]);
+  useEffect(() => {
+    updateData && console.log('userSubsDasta: ', updateData)
+   if(updateData){
+    // logic (todo)
+    const updatedData = updateData["updateData"];
+    console.log(updatedData);
+    const allUsers = users.filter((user)=>user.id !== updatedData.id)
+    //updatedList.name = updateData["updateData"].name;
+    //console.log(updatedList);
+    
+    console.log(allUsers);
+    setUsers(allUsers)
+    users.unshift(updatedData);
+    console.log(users);
+  }
+   // state.data = diariesUpdatedList;
+  }, [updateData]);
   if (loading) {
     return <h1>Loading......</h1>;
   }
@@ -98,7 +109,6 @@ useEffect(() => {
       <br />
       <ul>
         {users && users.map((data)=>{
-        console.log(data);
         
        return <li key={data.id}>
                 

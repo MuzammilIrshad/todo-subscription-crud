@@ -44,17 +44,13 @@ export  const resolvers = {
           editData:async(_,args)=>{
             console.log(args)
             const {id, name} = args;
-             const data =  await Data.findOneAndUpdate({_id:id},{name:name})
-             
-               if(data){                     
+             const updateData =  await Data.findOneAndUpdate({_id:id},{name:name},{new:true})
+               console.log(updateData)
+               if(updateData){                     
                 
-                const updateData = await Data.find();
-                if(updateData){
-                  console.log(updateData)
                   pubsub.publish('TRIGGER_UPDATE_USER',{updateData})
                   return updateData;
-                 
-             }
+             
             }
           }
     },

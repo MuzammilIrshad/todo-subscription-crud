@@ -13,11 +13,11 @@ type Query{
 }
 type Mutation{
     addData(name:String!):Data!
-    editData(name:String!, id:ID!):[Data]!
+    editData(name:String!, id:ID!):Data!
 }
 type Subscription{
     newData:Data!
     delData:Data!
-    updateData:[Data]!
+    updateData:Data!
 }
 `;
